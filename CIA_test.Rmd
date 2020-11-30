@@ -1,0 +1,53 @@
+---
+title: "textmining_CIA_test_rmarkdown"
+output: html_document
+---
+
+# Loading R-packages
+(tekst om pakker)
+```{r message=FALSE}
+library(readtext)
+library(tidyverse)
+library(tidytext)
+```
+
+
+
+# Loading data
+I want to load the data that I put in a directory called data/.
+I ask the readtext function to make a dataset called CIA with the data from the data directory.
+I have put metadata about the documents in the filename. It's structured like this 'date_subject_area.pdf'. I tell the redatext function that I separated the different data by a underscore "_", with the "dvsep =" function.
+
+```{r}
+CIA <- as_tibble(readtext("./data/*.pdf", 
+                docvarsfrom = "filenames",
+                docvarnames = c("date", "subject", "area"),
+                dvsep = "_",
+                encoding = "UTF-8"))
+```
+
+
+
+# Analysis 
+
+```{r}
+CIA %>% 
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words) %>% 
+  count(word, sort = TRUE)
+```
+
+
+```{r}
+CIA_clean <- CIA %>% 
+  mutate(text = 
+           str_replace_all(
+                          text, 
+                          pattern = 
+                            "\\d", ""))
+CIA_clean %>% 
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words) %>% 
+  count(word, sort = TRUE)
+```
+
